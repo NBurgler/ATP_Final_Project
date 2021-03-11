@@ -55,6 +55,7 @@ end
 
 to go
   move
+  update-display
   tick
 end
 
@@ -68,6 +69,7 @@ to move
     ifelse compliant? = true
         [follow-patch]
         [move-randomly]
+    if infected? = true [ infect ]
   ]
 end
 
@@ -85,13 +87,32 @@ to follow-patch
       pcolor = red [
         face patch-at -1 0    ;; left
     ])
-    fd 1
+  if random 2 = 0 and not any? turtles-on patch-ahead 1
+    [ fd 1 ]
 end
 
 to move-randomly
   rt random 50
   lt random 50
   fd 1
+end
+
+to infect
+  ask turtles-on neighbors [ ;;turtles in moore neighbourhood
+    if random 100 < infection-chance [ become-sick ]
+  ]
+end
+
+to become-sick
+  set infected? true
+end
+
+to update-display
+  ask turtles [
+    ifelse infected? = true
+      [ set color red ]
+      [ set color blue ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -147,7 +168,7 @@ amount-of-people
 amount-of-people
 0
 100
-100.0
+10.0
 1
 1
 NIL
@@ -162,7 +183,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 100
-10.0
+1.0
 1
 1
 NIL
@@ -177,7 +198,7 @@ initial-uncompliant-size
 initial-uncompliant-size
 0
 100
-5.0
+0.0
 1
 1
 NIL
@@ -199,6 +220,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+16
+251
+188
+284
+infection-chance
+infection-chance
+0
+100
+1.0
+1
+1
+%
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
