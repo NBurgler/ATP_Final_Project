@@ -98,7 +98,7 @@ to move-randomly
 end
 
 to infect
-  ask turtles-on neighbors [ ;;turtles in moore neighbourhood
+  ask turtles with [distance myself <= infection-radius] [ ;;turtles in moore neighbourhood
     if random 100 < infection-chance [ become-sick ]
   ]
 end
@@ -168,7 +168,7 @@ amount-of-people
 amount-of-people
 0
 100
-10.0
+20.0
 1
 1
 NIL
@@ -234,6 +234,21 @@ infection-chance
 1
 1
 %
+HORIZONTAL
+
+SLIDER
+15
+298
+187
+331
+infection-radius
+infection-radius
+0
+5
+1.5
+0.1
+1
+m
 HORIZONTAL
 
 @#$#@#$#@
