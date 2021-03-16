@@ -91,8 +91,8 @@ to follow-patch
     ]
       pcolor = white [
       ifelse random 2 = 0
-        [ lt random 50 ]
-        [ rt random 50 ]
+        [ lt 90 ]
+        [ rt 90 ]
     ]
     )
   if random 2 = 0 and
@@ -179,7 +179,7 @@ amount-of-people
 amount-of-people
 0
 100
-64.0
+20.0
 1
 1
 NIL
