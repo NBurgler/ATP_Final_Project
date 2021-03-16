@@ -1,3 +1,11 @@
+extensions [
+  bitmap
+]
+
+globals [
+  image
+]
+
 turtles-own
 [
   infected?
@@ -42,15 +50,9 @@ to setup-compliance
 end
 
 to setup-patches
-  ask patches [
-    set wall? false
-    set pcolor yellow
-    if pxcor = max-pxcor or pxcor = min-pxcor or pycor = max-pycor or pycor = min-pycor [ set wall? true ]
-    if wall? = true [ set pcolor black ]
-    if pycor = -16 [ set pcolor yellow ]
-    ask patch 11 -15 [ set pcolor red]
-    ask patch 10 -15 [ set pcolor blue]
-  ]
+  set image bitmap:import "map.bmp"
+  set image bitmap:scaled image 33 33
+  bitmap:copy-to-pcolors image false
 end
 
 to go
@@ -168,7 +170,7 @@ amount-of-people
 amount-of-people
 0
 100
-20.0
+100.0
 1
 1
 NIL
