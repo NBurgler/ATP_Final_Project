@@ -27,8 +27,8 @@ to setup
 end
 
 to setup-turtles
-  set-default-shape turtles "face happy"
-  create-turtles amount-of-people [ setxy random 3 + 11 -16 ]
+  set-default-shape turtles "face mask"
+  create-turtles amount-of-people [ setxy random 3 * 2 + 6 -16 ]
   ask turtles [
     set color blue
     set infected? false
@@ -52,7 +52,7 @@ end
 to setup-patches
   set image bitmap:import "map.bmp"
   set image bitmap:scaled image 33 33
-  bitmap:copy-to-pcolors image false
+  bitmap:copy-to-pcolors image true
 end
 
 to go
@@ -77,19 +77,28 @@ end
 
 to follow-patch
    (ifelse
-      pcolor = yellow [
+      shade-of? pcolor lime [
         face patch-at 0 1    ;; up
     ]
-      pcolor = blue [
+      shade-of? pcolor blue [
         face patch-at 1 0    ;; right
     ]
-      pcolor = green [
+      shade-of? pcolor red [
         face patch-at 0 -1   ;; down
     ]
-      pcolor = red [
+      shade-of? pcolor yellow [
         face patch-at -1 0    ;; left
-    ])
-  if random 2 = 0 and not any? turtles-on patch-ahead 1
+    ]
+      pcolor = white [
+      ifelse random 2 = 0
+        [ lt random 50 ]
+        [ rt random 50 ]
+    ]
+    )
+  if random 2 = 0 and
+     patch-ahead 1 != nobody and
+     not any? turtles-on patch-ahead 1 and
+     [pcolor] of patch-ahead 1 != black
     [ fd 1 ]
 end
 
@@ -170,7 +179,7 @@ amount-of-people
 amount-of-people
 0
 100
-100.0
+64.0
 1
 1
 NIL
@@ -381,6 +390,24 @@ Circle -7500403 true true 8 8 285
 Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+
+face mask
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+Rectangle -1 true false 45 150 255 255
+Polygon -1 true false 45 255 75 285 225 285 255 255
+Rectangle -1 true false 0 165 45 180
+Rectangle -1 true false 240 165 300 180
+Rectangle -1 true false 30 240 60 255
+Rectangle -1 true false 240 240 270 255
+Rectangle -11221820 true false 60 165 240 180
+Rectangle -11221820 true false 60 195 240 210
+Rectangle -11221820 true false 60 225 240 240
+Rectangle -11221820 true false 75 255 225 270
 
 face neutral
 false
