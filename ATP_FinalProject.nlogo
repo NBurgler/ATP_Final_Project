@@ -28,7 +28,7 @@ end
 
 to setup-turtles
   set-default-shape turtles "face mask"
-  create-turtles amount-of-people [ setxy random 3 * 2 + 6 -16 ]
+  create-turtles amount-of-people [ setxy random 3 * 2 + 6 -16 ]  ;; one of the three entrance coordinates
   ask turtles [
     set color blue
     set infected? false
@@ -50,7 +50,7 @@ to setup-compliance
 end
 
 to setup-patches
-  set image bitmap:import "map.bmp"
+  set image bitmap:import "map.bmp"    ;; import the map
   set image bitmap:scaled image 33 33
   bitmap:copy-to-pcolors image true
 end
@@ -68,10 +68,10 @@ end
 
 to move
   ask turtles [
-    ifelse compliant? = true
+    ifelse compliant? = true       ;; follow colors if compliant, else move randomly
         [follow-patch]
         [move-randomly]
-    if infected? = true [ infect ]
+    if infected? = true [ infect ] ;; if infected, infect nearby people
   ]
 end
 
@@ -89,28 +89,31 @@ to follow-patch
       shade-of? pcolor yellow [
         face patch-at -1 0    ;; left
     ]
-      pcolor = white [
-      ifelse random 2 = 0
-        [ lt 90 ]
-        [ rt 90 ]
+      pcolor = white [        ;; turn left or right
+        ifelse random 2 = 0
+          [ lt 90 ]
+          [ rt 90 ]
     ]
     )
-  if random 2 = 0 and
-     patch-ahead 1 != nobody and
-     not any? turtles-on patch-ahead 1 and
-     [pcolor] of patch-ahead 1 != black
+  if random 2 = 0 and                      ;; 50% chance to move
+     patch-ahead 1 != nobody and           ;; cannot go to an empty patch
+     not any? turtles-on patch-ahead 1 and ;; cannot go to the same patch as someone else
+     [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
     [ fd 1 ]
 end
 
 to move-randomly
   rt random 50
   lt random 50
-  fd 1
+  if random 2 = 0 and
+     patch-ahead 1 != nobody and
+     [pcolor] of patch-ahead 1 != black
+  [ fd 1 ]
 end
 
 to infect
-  ask turtles with [distance myself <= infection-radius] [ ;;turtles in moore neighbourhood
-    if random 100 < infection-chance [ become-sick ]
+  ask turtles with [distance myself <= infection-radius] [ ;;turtles in infection radius
+    if random 100 < infection-chance [ become-sick ]       ;; chance to become sick
   ]
 end
 
@@ -118,7 +121,7 @@ to become-sick
   set infected? true
 end
 
-to update-display
+to update-display            ;; update the colors of turtles that were infected
   ask turtles [
     ifelse infected? = true
       [ set color red ]
@@ -179,7 +182,7 @@ amount-of-people
 amount-of-people
 0
 100
-20.0
+100.0
 1
 1
 NIL
@@ -209,7 +212,7 @@ initial-uncompliant-size
 initial-uncompliant-size
 0
 100
-0.0
+100.0
 1
 1
 NIL
