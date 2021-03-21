@@ -20,36 +20,12 @@ patches-own
 to setup
   clear-all
   setup-turtles
-  setup-outbreak
-  setup-compliance
   setup-patches
-  if draw-lines [
-    ask turtles [pen-down]
-  ]
   reset-ticks
 end
 
 to setup-turtles
   set-default-shape turtles "face mask"
-  create-turtles amount-of-people [ setxy random 3 * 2 + 6 -16 ]  ;; one of the three entrance coordinates
-  ask turtles [
-    set color blue
-    set infected? false
-    set compliant? true
-  ]
-end
-
-to setup-outbreak
-  ask n-of initial-outbreak-size turtles
-  [ become-infected ]
-end
-
-to setup-compliance
-  ask n-of initial-uncompliant-size turtles
-  [
-    set compliant? false
-    set shape "face sad"
-  ]
 end
 
 to setup-patches
@@ -60,13 +36,30 @@ end
 
 to go
   move
+  enter-people
   update-display
   tick
+end
+
+to enter-people
+  if random 100 < person-influx and count turtles < maximum-amount-of-people
+    [ create-turtles 1 [ setxy random 3 * 3 + 5 -16 ;; one of the three entrance coordinates
+      set color blue
+      set infected? false
+      set compliant? true
+      if random 100 < infected-chance [ become-infected ]
+      if random 100 < uncompliant-chance [ become-uncompliant ] ] ]
+
 end
 
 to become-infected
   set color red
   set infected? true
+end
+
+to become-uncompliant
+  set shape "face sad"
+  set compliant? false
 end
 
 to move
@@ -87,6 +80,7 @@ to follow-patch
         face patch-at 1 0    ;; right
     ]
       shade-of? pcolor red [
+        if patch-at 0 -1 = nobody [ die ]
         face patch-at 0 -1   ;; down
     ]
       shade-of? pcolor yellow [
@@ -101,10 +95,23 @@ to follow-patch
 
   lt random 50
   rt random 50
+  if count turtles > 1 [
+    if count turtles in-radius 1.5 > 1
+     [
+        ask min-one-of turtles [ distance myself ] [
+          face myself
+          rt 180
+          if patch-ahead 1 != nobody [
+            print "kaas?"
+            if [pcolor] of patch-ahead 1 != black
+             [print "kaas!"
+                 fd 1 ]
+          ]
+        ]
+     ]
+  ]
 
-  if patch-ahead 1 != nobody and           ;; cannot go to an empty patch
-     not any? turtles-on patch-ahead 1 and ;; cannot go to the same patch as someone else
-     [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
+  if patch-ahead 1 != nobody and [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
     [ fd 1 ]
 end
 
@@ -129,6 +136,7 @@ end
 
 to update-display            ;; update the colors of turtles that were infected
   ask turtles [
+    if draw-lines [ pen-down ]
     ifelse infected? = true
       [ set color red ]
       [ set color blue ]
@@ -184,11 +192,11 @@ SLIDER
 89
 315
 122
-amount-of-people
-amount-of-people
+maximum-amount-of-people
+maximum-amount-of-people
 0
 100
-100.0
+50.0
 1
 1
 NIL
@@ -199,14 +207,14 @@ SLIDER
 130
 315
 163
-initial-outbreak-size
-initial-outbreak-size
+infected-chance
+infected-chance
 0
 100
-0.0
+1.0
 1
 1
-NIL
+%
 HORIZONTAL
 
 SLIDER
@@ -214,14 +222,14 @@ SLIDER
 172
 315
 205
-initial-uncompliant-size
-initial-uncompliant-size
+uncompliant-chance
+uncompliant-chance
 0
 100
 1.0
 1
 1
-NIL
+%
 HORIZONTAL
 
 BUTTON
@@ -265,7 +273,7 @@ infection-radius
 infection-radius
 0
 5
-1.0
+1.5
 0.1
 1
 m
@@ -274,7 +282,7 @@ HORIZONTAL
 PLOT
 14
 300
-237
+307
 450
 Infections
 NIL
@@ -284,11 +292,11 @@ NIL
 0.0
 10.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" "plot count turtles with [infected? = true]"
-"pen-1" 1.0 0 -13791810 true "" "plot count turtles with [infected? = false]"
+"Infected" 1.0 0 -2674135 true "" "plot count turtles with [infected? = true]"
+"Non-infected" 1.0 0 -13791810 true "" "plot count turtles with [infected? = false]"
 
 SWITCH
 12
@@ -300,6 +308,21 @@ draw-lines
 0
 1
 -1000
+
+SLIDER
+134
+457
+306
+490
+person-influx
+person-influx
+0
+100
+10.0
+1
+1
+%
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
