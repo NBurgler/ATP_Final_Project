@@ -23,6 +23,9 @@ to setup
   setup-outbreak
   setup-compliance
   setup-patches
+  if draw-lines [
+    ask turtles [pen-down]
+  ]
   reset-ticks
 end
 
@@ -91,12 +94,15 @@ to follow-patch
     ]
       pcolor = white [        ;; turn left or right
         ifelse random 2 = 0
-          [ lt 90 ]
-          [ rt 90 ]
+          [ lt 40 ]
+          [ rt 40 ]
     ]
-    )
-  if random 2 = 0 and                      ;; 50% chance to move
-     patch-ahead 1 != nobody and           ;; cannot go to an empty patch
+  )
+
+  lt random 50
+  rt random 50
+
+  if patch-ahead 1 != nobody and           ;; cannot go to an empty patch
      not any? turtles-on patch-ahead 1 and ;; cannot go to the same patch as someone else
      [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
     [ fd 1 ]
@@ -130,9 +136,9 @@ to update-display            ;; update the colors of turtles that were infected
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+329
 10
-647
+766
 448
 -1
 -1
@@ -157,10 +163,10 @@ ticks
 30.0
 
 BUTTON
-29
-35
-92
-68
+15
+11
+112
+79
 NIL
 setup
 NIL
@@ -174,10 +180,10 @@ NIL
 1
 
 SLIDER
-13
-102
-185
-135
+15
+89
+315
+122
 amount-of-people
 amount-of-people
 0
@@ -189,12 +195,27 @@ NIL
 HORIZONTAL
 
 SLIDER
-14
-150
-186
-183
+16
+130
+315
+163
 initial-outbreak-size
 initial-outbreak-size
+0
+100
+0.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+16
+172
+315
+205
+initial-uncompliant-size
+initial-uncompliant-size
 0
 100
 1.0
@@ -203,26 +224,11 @@ initial-outbreak-size
 NIL
 HORIZONTAL
 
-SLIDER
-14
-197
-187
-230
-initial-uncompliant-size
-initial-uncompliant-size
-0
-100
-100.0
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-112
-35
-175
-68
+122
+11
+316
+79
 NIL
 go
 T
@@ -237,9 +243,9 @@ NIL
 
 SLIDER
 16
-251
-188
-284
+215
+315
+248
 infection-chance
 infection-chance
 0
@@ -251,19 +257,49 @@ infection-chance
 HORIZONTAL
 
 SLIDER
-15
-298
-187
-331
+14
+259
+315
+292
 infection-radius
 infection-radius
 0
 5
-1.5
+1.0
 0.1
 1
 m
 HORIZONTAL
+
+PLOT
+14
+300
+237
+450
+Infections
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -2674135 true "" "plot count turtles with [infected? = true]"
+"pen-1" 1.0 0 -13791810 true "" "plot count turtles with [infected? = false]"
+
+SWITCH
+12
+457
+121
+490
+draw-lines
+draw-lines
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
