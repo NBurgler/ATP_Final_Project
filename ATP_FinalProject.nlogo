@@ -12,11 +12,6 @@ turtles-own
   compliant?
 ]
 
-patches-own
-[
-  wall?
-]
-
 to setup
   clear-all
   setup-turtles
@@ -42,8 +37,11 @@ to go
 end
 
 to enter-people
-  if random 100 < person-influx and count turtles < maximum-amount-of-people
-    [ create-turtles 1 [ setxy random 3 * 3 + 5 -16 ;; one of the three entrance coordinates
+  let spawn-xcor random 3 * 3 + 5
+  let spawn-patch patch spawn-xcor -16
+  let spawn-patch-1 patch (spawn-xcor + 1) -16
+  if random 100 < person-influx and count turtles < maximum-amount-of-people and not any? turtles-on spawn-patch and not any? turtles-on spawn-patch-1
+    [ create-turtles 1 [ setxy spawn-xcor -16 ;; one of the three entrance coordinates
       set color blue
       set infected? false
       set compliant? true
@@ -90,25 +88,28 @@ to follow-patch
     ]
       pcolor = white [        ;; turn left or right
         ifelse random 2 = 0
-          [ lt 40 ]
-          [ rt 40 ]
+          [ lt 10 ]
+          [ rt 10 ]
     ]
   )
 
   lt random 50
   rt random 50
-  if patch-ahead 1 != nobody and [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
-    [ fd 1 ]
+  if patch-ahead 0.2 != nobody and [pcolor] of patch-ahead 0.2 != black    ;; cannot go to a wall
+    [ fd 0.2 ]
   ]
 end
 
 to move-randomly
-  rt random 50
-  lt random 50
-  if random 2 = 0 and
-     patch-ahead 1 != nobody and
-     [pcolor] of patch-ahead 1 != black
-  [ fd 1 ]
+  if shade-of? pcolor red [
+    if patch-at 0 -1 = nobody [ die ]
+  ]
+  rt random 20
+  lt random 20
+  if random 5 = 0 and
+     patch-ahead 0.2 != nobody and
+     [pcolor] of patch-ahead 0.2 != black
+  [ fd 0.2 ]
 end
 
 to infect
@@ -125,11 +126,9 @@ to keep-distance
   let closest min-one-of other turtles [ distance myself ]
    face closest
    rt 180
-   if patch-ahead 1 != nobody [
-      print "kaas?"
-      if [pcolor] of patch-ahead 1 != black
-         [ print "kaas!"
-           fd 1 ]
+   if patch-ahead 0.2 != nobody [
+      if [pcolor] of patch-ahead 0.2 != black
+         [ fd 0.2 ]
   ]
 end
 
@@ -195,7 +194,7 @@ maximum-amount-of-people
 maximum-amount-of-people
 0
 100
-100.0
+50.0
 1
 1
 NIL
@@ -225,7 +224,7 @@ uncompliant-chance
 uncompliant-chance
 0
 100
-1.0
+5.0
 1
 1
 %
@@ -317,7 +316,7 @@ person-influx
 person-influx
 0
 100
-10.0
+2.0
 1
 1
 %
