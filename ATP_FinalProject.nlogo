@@ -72,7 +72,9 @@ to move
 end
 
 to follow-patch
-   (ifelse
+  ifelse count turtles > 1 and count turtles in-radius 1.5 > 1
+    [ keep-distance ]
+   [ (ifelse
       shade-of? pcolor lime [
         face patch-at 0 1    ;; up
     ]
@@ -95,24 +97,9 @@ to follow-patch
 
   lt random 50
   rt random 50
-  if count turtles > 1 [
-    if count turtles in-radius 1.5 > 1
-     [
-        ask min-one-of turtles [ distance myself ] [
-          face myself
-          rt 180
-          if patch-ahead 1 != nobody [
-            print "kaas?"
-            if [pcolor] of patch-ahead 1 != black
-             [print "kaas!"
-                 fd 1 ]
-          ]
-        ]
-     ]
-  ]
-
   if patch-ahead 1 != nobody and [pcolor] of patch-ahead 1 != black    ;; cannot go to a wall
     [ fd 1 ]
+  ]
 end
 
 to move-randomly
@@ -132,6 +119,18 @@ end
 
 to become-sick
   set infected? true
+end
+
+to keep-distance
+  let closest min-one-of other turtles [ distance myself ]
+   face closest
+   rt 180
+   if patch-ahead 1 != nobody [
+      print "kaas?"
+      if [pcolor] of patch-ahead 1 != black
+         [ print "kaas!"
+           fd 1 ]
+  ]
 end
 
 to update-display            ;; update the colors of turtles that were infected
@@ -196,7 +195,7 @@ maximum-amount-of-people
 maximum-amount-of-people
 0
 100
-50.0
+100.0
 1
 1
 NIL
