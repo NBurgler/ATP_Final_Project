@@ -4,6 +4,8 @@ extensions [
 
 globals [
   image
+  healthy-entered
+  infected-in-store
 ]
 
 turtles-own
@@ -16,6 +18,8 @@ to setup
   clear-all
   setup-turtles
   setup-patches
+  set healthy-entered 0
+  set infected-in-store 0
   reset-ticks
 end
 
@@ -30,8 +34,8 @@ to setup-patches
 end
 
 to go
-  move
   enter-people
+  move
   update-display
   tick
 end
@@ -40,14 +44,13 @@ to enter-people
   let spawn-xcor random 3 * 3 + 5
   let spawn-patch patch spawn-xcor -16
   let spawn-patch-1 patch (spawn-xcor + 1) -16
-  if random 100 < person-influx and count turtles < maximum-amount-of-people and not any? turtles-on spawn-patch and not any? turtles-on spawn-patch-1
+  if random 10000 * 0.01 < person-influx and count turtles < maximum-amount-of-people and not any? turtles-on spawn-patch and not any? turtles-on spawn-patch-1
     [ create-turtles 1 [ setxy spawn-xcor -16 ;; one of the three entrance coordinates
       set color blue
       set infected? false
       set compliant? true
-      if random 100 < infected-chance [ become-infected ]
+      ifelse random 100 < infected-chance [ become-infected ] [ set healthy-entered healthy-entered + 1 ]
       if random 100 < uncompliant-chance [ become-uncompliant ] ] ]
-
 end
 
 to become-infected
@@ -63,8 +66,12 @@ end
 to move
   ask turtles [
     ifelse compliant? = true       ;; follow colors if compliant, else move randomly
-        [follow-patch]
-        [move-randomly]
+        [
+          ifelse random 4 = 0 [ follow-patch ] [ move-randomly ]
+        ]
+        [
+          ifelse random 500 = 0 [ follow-patch ] [ move-randomly ]
+        ]
     if infected? = true [ infect ] ;; if infected, infect nearby people
   ]
 end
@@ -119,6 +126,7 @@ to infect
 end
 
 to become-sick
+  if not infected? [ set infected-in-store infected-in-store + 1 ]
   set infected? true
 end
 
@@ -134,7 +142,6 @@ end
 
 to update-display            ;; update the colors of turtles that were infected
   ask turtles [
-    if draw-lines [ pen-down ]
     ifelse infected? = true
       [ set color red ]
       [ set color blue ]
@@ -194,7 +201,7 @@ maximum-amount-of-people
 maximum-amount-of-people
 0
 100
-50.0
+30.0
 1
 1
 NIL
@@ -209,7 +216,7 @@ infected-chance
 infected-chance
 0
 100
-1.0
+15.0
 1
 1
 %
@@ -224,7 +231,7 @@ uncompliant-chance
 uncompliant-chance
 0
 100
-5.0
+7.0
 1
 1
 %
@@ -271,7 +278,7 @@ infection-radius
 infection-radius
 0
 5
-1.5
+1.3
 0.1
 1
 m
@@ -296,31 +303,82 @@ PENS
 "Infected" 1.0 0 -2674135 true "" "plot count turtles with [infected? = true]"
 "Non-infected" 1.0 0 -13791810 true "" "plot count turtles with [infected? = false]"
 
-SWITCH
-12
-457
-121
-490
-draw-lines
-draw-lines
-0
-1
--1000
-
 SLIDER
-134
-457
-306
-490
+13
+463
+307
+496
 person-influx
 person-influx
-0
-100
-2.0
+0.0
 1
+0.4
+0.01
 1
 %
 HORIZONTAL
+
+PLOT
+11
+511
+765
+749
+Percentage infected in store
+NIL
+%
+0.0
+10.0
+0.0
+100.0
+true
+false
+"" ""
+PENS
+"% Infected" 1.0 0 -2674135 true "" "plot (infected-in-store / healthy-entered) * 100"
+
+MONITOR
+428
+457
+520
+502
+Healthy Entered
+healthy-entered
+17
+1
+11
+
+MONITOR
+328
+457
+424
+502
+Infected in store
+infected-in-store
+17
+1
+11
+
+MONITOR
+524
+457
+637
+502
+% infected in store
+(infected-in-store / healthy-entered) * 100
+2
+1
+11
+
+MONITOR
+642
+457
+766
+502
+No. of Customers
+count turtles
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
