@@ -3,9 +3,9 @@ extensions [
 ]
 
 globals [
-  image
-  healthy-entered
-  infected-in-store
+  image               ;; the image for the bitmap
+  healthy-entered     ;; the amount of healthy people that entered the store
+  infected-in-store   ;; the amount of people that got infected in the store
 ]
 
 turtles-own
@@ -30,7 +30,7 @@ end
 to setup-patches
   set image bitmap:import "map.bmp"    ;; import the map
   set image bitmap:scaled image 33 33
-  bitmap:copy-to-pcolors image true
+  bitmap:copy-to-pcolors image true    ;; copy the bitmap's colours
 end
 
 to go
@@ -40,32 +40,32 @@ to go
   tick
 end
 
-to enter-people
+to enter-people                      ;; based on a the people-influx, a person can enter the store
   let spawn-xcor random 3 * 3 + 5
-  let spawn-patch patch spawn-xcor -16
-  let spawn-patch-1 patch (spawn-xcor + 1) -16
+  let spawn-patch patch spawn-xcor -16  ;; one of the three entrance coordinates
+  let spawn-patch-1 patch (spawn-xcor + 1) -16  ;; the tile above the selected entrance coordinate
   if random 10000 * 0.01 < person-influx and count turtles < maximum-amount-of-people and not any? turtles-on spawn-patch and not any? turtles-on spawn-patch-1
-    [ create-turtles 1 [ setxy spawn-xcor -16 ;; one of the three entrance coordinates
+    [ create-turtles 1 [ setxy spawn-xcor -16 ;; initialize the turtle
       set color blue
       set infected? false
       set compliant? true
       ifelse random 100 < infected-chance [ become-infected ] [ set healthy-entered healthy-entered + 1 ]
-      if random 100 < uncompliant-chance [ become-uncompliant ] ] ]
+      if random 100 < noncompliant-chance [ become-noncompliant ] ] ]
 end
 
-to become-infected
+to become-infected   ;; a turtle becomes infected
   set color red
   set infected? true
 end
 
-to become-uncompliant
+to become-noncompliant ;; a turtle becomes non-compliant (only happens when spawning)
   set shape "face sad"
   set compliant? false
 end
 
-to move
+to move             ;; turtles move based on whether they are compliant.
   ask turtles [
-    ifelse compliant? = true       ;; follow colors if compliant, else move randomly
+    ifelse compliant? = true       ;; follow colors often if compliant, else almost always move randomly
         [
           ifelse random 4 = 0 [ follow-patch ] [ move-randomly ]
         ]
@@ -76,7 +76,7 @@ to move
   ]
 end
 
-to follow-patch
+to follow-patch       ;; first, keep distance from nearby agents. Then, move according to the route
   ifelse count turtles > 1 and count turtles in-radius 1.5 > 1
     [ keep-distance ]
    [ (ifelse
@@ -87,7 +87,7 @@ to follow-patch
         face patch-at 1 0    ;; right
     ]
       shade-of? pcolor red [
-        if patch-at 0 -1 = nobody [ die ]
+        if patch-at 0 -1 = nobody [ die ] ;; leave the store
         face patch-at 0 -1   ;; down
     ]
       shade-of? pcolor yellow [
@@ -100,37 +100,37 @@ to follow-patch
     ]
   )
 
-  lt random 50
+  lt random 50       ;; add a bit of randomness
   rt random 50
   if patch-ahead 0.2 != nobody and [pcolor] of patch-ahead 0.2 != black    ;; cannot go to a wall
     [ fd 0.2 ]
   ]
 end
 
-to move-randomly
+to move-randomly     ;; move without any heading
   if shade-of? pcolor red [
-    if patch-at 0 -1 = nobody [ die ]
+    if patch-at 0 -1 = nobody [ die ] ;; leave the store
   ]
   rt random 20
   lt random 20
-  if random 5 = 0 and
+  if random 5 = 0 and ;; small chance to stand still (shop)
      patch-ahead 0.2 != nobody and
      [pcolor] of patch-ahead 0.2 != black
   [ fd 0.2 ]
 end
 
-to infect
+to infect      ;; chance to infect agents within the infection radius
   ask turtles with [distance myself <= infection-radius] [ ;;turtles in infection radius
     if random 100 < infection-chance [ become-sick ]       ;; chance to become sick
   ]
 end
 
-to become-sick
+to become-sick  ;; an agent becomes sick
   if not infected? [ set infected-in-store infected-in-store + 1 ]
   set infected? true
 end
 
-to keep-distance
+to keep-distance  ;; keep distance from the closest agent within 1.5m
   let closest min-one-of other turtles [ distance myself ]
    face closest
    rt 180
@@ -201,7 +201,7 @@ maximum-amount-of-people
 maximum-amount-of-people
 0
 100
-30.0
+25.0
 1
 1
 NIL
@@ -216,7 +216,7 @@ infected-chance
 infected-chance
 0
 100
-15.0
+10.0
 1
 1
 %
@@ -227,8 +227,8 @@ SLIDER
 172
 315
 205
-uncompliant-chance
-uncompliant-chance
+noncompliant-chance
+noncompliant-chance
 0
 100
 7.0
@@ -278,7 +278,7 @@ infection-radius
 infection-radius
 0
 5
-1.3
+1.0
 0.1
 1
 m
@@ -383,11 +383,11 @@ count turtles
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This model attempts to show virus spread in a store, and the influence of agents not complying to the measures that were put in place to slow/prevent the virus spread.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Compliant agents follow a route indicated by colours, while non-compliant agents do not. The directions the colours correspond to can be seen in the black square located around (2,8).
 
 ## HOW TO USE IT
 
